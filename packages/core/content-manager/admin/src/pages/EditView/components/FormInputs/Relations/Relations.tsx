@@ -797,8 +797,12 @@ const RelationModalWithContext = ({
           }
           hasMoreItems={hasNextPage}
           loading={isLoadingSearchRelations || isLoadingPermissions}
-          onOpenChange={() => {
-            handleSearch(textValue ?? '');
+          onOpenChange={(isOpen?: boolean) => {
+            // Only refresh the search when opening the list. Searching on close would
+            // persist the (stale) typed/selected text as the search query.
+            if (isOpen) {
+              handleSearch(textValue ?? '');
+            }
           }}
           noOptionsMessage={() =>
             formatMessage({
@@ -812,7 +816,14 @@ const RelationModalWithContext = ({
           })}
           onLoadMore={handleLoadMore}
           textValue={textValue}
-          onChange={handleChange}
+          onChange={(relationId?: string) => {
+            handleChange(relationId);
+            if (relationId) {
+              // Once a relation is picked, reset the search so the remaining entries are listed.
+              setTextValue('');
+              handleSearch('');
+            }
+          }}
           onTextValueChange={(text) => {
             setTextValue(text);
           }}
